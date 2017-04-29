@@ -1,7 +1,7 @@
 {
  "version": "2.3.2",
  "compilerOptions": {
- "target": "es5",
+ "target": "es2015",
  "module": "commonjs",
  "emitDecoratorMetadata": true,
  "experimentalDecorators": true,

@@ -1,13 +1,39 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var express = require("express");
-var morgan = require("morgan");
-var app = express();
-app.use(morgan('common'));
-app.get('/', function (req, res) {
+const express = require("express");
+const morgan = require("morgan");
+exports.app = express();
+exports.app.use(morgan('common'));
+exports.app.get('/', (req, res) => {
     res.send("Hello again");
 });
-var port = 8080;
-app.listen(port, function () {
-    console.log("Your app is listening on port " + port);
-});
+let server;
+function runServer() {
+    const port = 8080;
+    return new Promise((resolve, reject) => {
+        server = exports.app.listen(port, () => {
+            console.log(`Your app is listening on port ${port}`);
+            resolve(server);
+        }).on('error', err => {
+            reject(err);
+        });
+    });
+}
+exports.runServer = runServer;
+function closeServer() {
+    return new Promise((resolve, reject) => {
+        console.log('Closing server');
+        server.close(err => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+exports.closeServer = closeServer;
+if (require.main === module) {
+    runServer().catch(err => console.error(err));
+}
+;
