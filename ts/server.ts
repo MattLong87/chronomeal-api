@@ -1,12 +1,11 @@
 import * as express from 'express';
 import * as morgan from 'morgan';
+import * as apiRouter from './routes/apiRouter';
 export const app = express();
 
 app.use(morgan('common'));
 
-app.get('/', (req, res) => {
-    res.send("Hello again");
-})
+app.use('/api', apiRouter);
 
 
 
