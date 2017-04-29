@@ -1,0 +1,13 @@
+{
+ "version": "2.3.2",
+ "compilerOptions": {
+ "target": "es5",
+ "module": "commonjs",
+ "emitDecoratorMetadata": true,
+ "experimentalDecorators": true,
+ "outDir": "build"
+},
+"exclude": [
+   "node_modules"
+ ]
+}
