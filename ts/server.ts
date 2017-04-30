@@ -1,6 +1,6 @@
 import * as express from 'express';
 import * as morgan from 'morgan';
-import * as apiRouter from './routes/apiRouter';
+import {router as apiRouter} from './routes/apiRouter';
 export const app = express();
 
 app.use(morgan('common'));

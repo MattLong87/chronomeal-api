@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const morgan = require("morgan");
-const apiRouter = require("./routes/apiRouter");
+const apiRouter_1 = require("./routes/apiRouter");
 exports.app = express();
 exports.app.use(morgan('common'));
-exports.app.use('/api', apiRouter);
+exports.app.use('/api', apiRouter_1.router);
 let server;
 function runServer() {
     const port = 8080;
