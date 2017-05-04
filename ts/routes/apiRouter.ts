@@ -40,4 +40,18 @@ router.post('/users', (req, res) => {
     })
 })
 
-//PUT to update a user
+//POST to add a meal
+router.post('/users/me/add-meal', (req, res) => {
+    let newMeal: object = {
+        time: req.body.time,
+        food: req.body.food,
+        notes: req.body.notes,
+        pain: req.body.pain
+    };
+
+	User.findOneAndUpdate({username: req.body.username}, {$push: {meals: newMeal}}, {new:true})
+	.exec()
+	.then((user) => {
+		res.status(201).json(user);
+		})
+})

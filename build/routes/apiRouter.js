@@ -33,4 +33,17 @@ exports.router.post('/users', (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     });
 });
-//PUT to update a user 
+//POST to add a meal
+exports.router.post('/users/me/add-meal', (req, res) => {
+    let newMeal = {
+        time: req.body.time,
+        food: req.body.food,
+        notes: req.body.notes,
+        pain: req.body.pain
+    };
+    models_1.User.findOneAndUpdate({ username: req.body.username }, { $push: { meals: newMeal } }, { new: true })
+        .exec()
+        .then((user) => {
+        res.status(201).json(user);
+    });
+});
