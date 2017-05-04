@@ -6,7 +6,7 @@
 *GET /api/users/me*
 
 ### Create a new user
-*POST /api/users*
+*POST /api/users*  
 Required body fields: 
 
 - username (string)
@@ -14,9 +14,8 @@ Required body fields:
 - lastName (string)
 
 ### Add a meal to a user
-*POST /api/users/me/add-meal*
+*POST /api/users/me/add-meal*  
 Required body fields:
-
 - username (string)
 - time (string)
 - food (string)
