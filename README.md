@@ -1,5 +1,11 @@
 # FoodTracker API
 
+## Usage
+1. Clone or download
+2. npm install
+3. tsc
+4. npm start (or npm run dev)
+
 ## Endpoints
 
 ### Get all data for one user
