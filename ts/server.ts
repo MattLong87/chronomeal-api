@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as morgan from 'morgan';
+import * as bodyParser from 'body-parser';
 import { router as apiRouter } from './routes/apiRouter';
 export const app = express();
 import { DATABASE_URL, PORT } from './config';
@@ -9,6 +10,7 @@ import * as mongoose from 'mongoose';
 mongoose.promise = global.Promise;
 
 app.use(morgan('common'));
+app.use(bodyParser.json());
 
 app.use('/api', apiRouter);
 
