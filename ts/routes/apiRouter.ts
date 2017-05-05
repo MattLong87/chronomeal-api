@@ -58,7 +58,7 @@ router.post('/users/me/add-meal', (req, res) => {
 
 //DELETE a specific meal by ID
 router.delete('/users/me/meals', (req, res) => {
-    User.findByIdAndUpdate(req.body.username, {$pull: {meals: {_id: req.body.mealId}}})
+    User.update({username: req.body.username}, {$pull: {meals: {_id: req.body.mealId}}})
 	.exec()
 	.then(() => res.status(204).end())
 })

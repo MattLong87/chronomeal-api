@@ -28,7 +28,7 @@ Required body fields:
 - pain (number)
 
 ### Delete a meal
-***DELETE /api/users/me/meals***
+***DELETE /api/users/me/meals***  
 Required body fields:
 - username (string)
 - mealId (string, the _id field in the chosen meal)
