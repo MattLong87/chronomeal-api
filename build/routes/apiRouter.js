@@ -4,9 +4,9 @@ const express = require("express");
 exports.router = express.Router();
 const session = require("express-session");
 const models_1 = require("../models");
-const passport_1 = require("passport");
+const passport = require("passport");
 const LocalStrategy = require('passport-local').Strategy;
-passport_1.passport.use(new LocalStrategy((username, password, done) => {
+passport.use(new LocalStrategy((username, password, done) => {
     models_1.User.findOne({ username: username }, (err, user) => {
         if (err) {
             return done(err);
@@ -22,12 +22,12 @@ passport_1.passport.use(new LocalStrategy((username, password, done) => {
 }));
 //MIDDLEWARE
 exports.router.use(session({ secret: 'mydogsnameisarden' }));
-exports.router.use(passport_1.passport.initialize());
-exports.router.use(passport_1.passport.session());
+exports.router.use(passport.initialize());
+exports.router.use(passport.session());
 exports.router.get('/', (req, res) => {
     res.send("foodtracker API");
 });
-exports.router.post('/login', passport_1.passport.authenticate('local'), (req, res) => {
+exports.router.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "login successful" });
 });
 //GET a user's information
@@ -44,14 +44,26 @@ exports.router.get('/users/me', (req, res) => {
 });
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
-    models_1.User.create({
-        username: req.body.username,
-        name: {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName
+    return models_1.User.find({ username: req.body.username })
+        .count()
+        .exec()
+        .then(count => {
+        if (count > 0) {
+            return res.status(422).json({ message: 'Username already taken' });
         }
+        return models_1.User.hashPassword(req.body.password);
     })
-        .then(user => res.status(201).json(user))
+        .then(hash => {
+        models_1.User.create({
+            username: req.body.username,
+            password: hash,
+            name: {
+                firstName: req.body.firstName,
+                lastName: req.body.lastName
+            }
+        });
+    })
+        .then(user => res.status(201).json({ message: 'user created' }))
         .catch(err => {
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });
