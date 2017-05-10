@@ -20,8 +20,12 @@ const userSchema = mongoose.Schema({
     ]
 });
 
-userSchema.statics.hashPassword = function(password){
+userSchema.statics.hashPassword = function(password: string){
     return bcrypt.hash(password, 10);
+}
+
+userSchema.methods.validatePassword = function(password: string){
+    return bcrypt.compare(password, this.password)
 }
 
 export const User = mongoose.model('User', userSchema);

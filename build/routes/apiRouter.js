@@ -7,19 +7,33 @@ const models_1 = require("../models");
 const passport = require("passport");
 const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy((username, password, done) => {
-    models_1.User.findOne({ username: username }, (err, user) => {
-        if (err) {
-            return done(err);
-        }
+    let user;
+    models_1.User.findOne({ username: username })
+        .exec()
+        .then(_user => {
+        user = _user;
         if (!user) {
             return done(null, false, { message: 'Incorrect username' });
         }
-        if (!user.validPassword(password)) {
+        return user.validatePassword(password);
+    })
+        .then(isValid => {
+        if (!isValid) {
             return done(null, false, { message: 'Incorrect password' });
         }
-        return done(null, user);
+        else {
+            return done(null, user);
+        }
     });
 }));
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+passport.deserializeUser((id, done) => {
+    models_1.User.findById(id, (err, user) => {
+        done(err, user);
+    });
+});
 //MIDDLEWARE
 exports.router.use(session({ secret: 'mydogsnameisarden' }));
 exports.router.use(passport.initialize());

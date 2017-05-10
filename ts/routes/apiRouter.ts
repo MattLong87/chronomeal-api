@@ -9,17 +9,35 @@ import * as passport from 'passport';
 const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy((username: string, password: string, done) => {
-    User.findOne({ username: username }, (err, user) => {
-        if (err) { return done(err); }
+    let user;
+    User.findOne({ username: username })
+    .exec()
+    .then( _user => {
+        user = _user;
         if (!user) {
             return done(null, false, { message: 'Incorrect username' });
         }
-        if (!user.validPassword(password)) {
-            return done(null, false, { message: 'Incorrect password' });
-        }
-        return done(null, user);
+        return user.validatePassword(password);
     })
+        .then(isValid => {
+            if (!isValid) {
+                return done(null, false, { message: 'Incorrect password' });
+            }
+            else {
+                return done(null, user);
+            }
+        })
 }));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    })
+})
 
 //MIDDLEWARE
 router.use(session({ secret: 'mydogsnameisarden' }));
@@ -32,8 +50,7 @@ router.get('/', (req, res) => {
 
 router.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "login successful" });
-}
-);
+});
 
 //GET a user's information
 router.get('/users/me', (req, res) => {
@@ -46,8 +63,7 @@ router.get('/users/me', (req, res) => {
         err => {
             console.log(err);
             res.status(500).json({ message: 'Internal Server Error' });
-        }
-        )
+        })
 })
 
 //POST to create a new user

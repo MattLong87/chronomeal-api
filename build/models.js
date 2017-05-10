@@ -23,4 +23,7 @@ const userSchema = mongoose.Schema({
 userSchema.statics.hashPassword = function (password) {
     return bcrypt.hash(password, 10);
 };
+userSchema.methods.validatePassword = function (password) {
+    return bcrypt.compare(password, this.password);
+};
 exports.User = mongoose.model('User', userSchema);
