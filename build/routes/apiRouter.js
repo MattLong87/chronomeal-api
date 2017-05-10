@@ -77,7 +77,7 @@ exports.router.post('/users', (req, res) => {
             }
         });
     })
-        .then(user => res.status(201).json({ message: 'user created' }))
+        .then(user => res.status(201).json({ user }))
         .catch(err => {
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -102,4 +102,7 @@ exports.router.delete('/users/me/meals', (req, res) => {
     models_1.User.update({ username: req.body.username }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()
         .then(() => res.status(204).end());
+});
+exports.router.get('/secrets', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+    res.json({ message: 'secrets are here' });
 });
