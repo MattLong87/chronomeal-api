@@ -11,10 +11,17 @@
 ### Get all data for one user
 ***GET /api/users/me***
 
+### User Login
+***POST /api/login***  
+Required body fields:
+- username (string)
+- password (string)
+
 ### Create a new user
 ***POST /api/users***  
 Required body fields: 
 - username (string)
+- password (string)
 - firstName (string)
 - lastName (string)
 
