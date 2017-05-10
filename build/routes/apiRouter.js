@@ -62,6 +62,14 @@ exports.router.get('/users/me', (req, res) => {
 });
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
+    //verify required fields are present
+    const requiredFields = ["username", "password", "firstName", "lastName"];
+    for (let i = 0; i < requiredFields.length; i++) {
+        const field = requiredFields[i];
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
+    }
     models_1.User.find({ username: req.body.username })
         .count()
         .exec()
@@ -89,6 +97,14 @@ exports.router.post('/users', (req, res) => {
 });
 //POST to add a meal
 exports.router.post('/users/me/add-meal', (req, res) => {
+    //verify required fields are present
+    const requiredFields = ["username", "time", "food", "notes", "pain"];
+    for (let i = 0; i < requiredFields.length; i++) {
+        const field = requiredFields[i];
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
+    }
     let newMeal = {
         time: req.body.time,
         food: req.body.food,
@@ -103,6 +119,14 @@ exports.router.post('/users/me/add-meal', (req, res) => {
 });
 //DELETE a specific meal by ID
 exports.router.delete('/users/me/meals', (req, res) => {
+    //verify required fields are present
+    const requiredFields = ["username", "mealId"];
+    for (let i = 0; i < requiredFields.length; i++) {
+        const field = requiredFields[i];
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
+    }
     models_1.User.update({ username: req.body.username }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()
         .then(() => res.status(204).end());
