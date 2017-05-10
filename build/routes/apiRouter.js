@@ -5,8 +5,8 @@ exports.router = express.Router();
 const session = require("express-session");
 const models_1 = require("../models");
 const passport = require("passport");
-const LocalStrategy = require('passport-local').Strategy;
-passport.use(new LocalStrategy((username, password, done) => {
+const passport_local_1 = require("passport-local");
+passport.use(new passport_local_1.Strategy((username, password, done) => {
     let user;
     models_1.User.findOne({ username: username })
         .exec()
@@ -35,7 +35,11 @@ passport.deserializeUser((id, done) => {
     });
 });
 //MIDDLEWARE
-exports.router.use(session({ secret: 'mydogsnameisarden' }));
+exports.router.use(session({
+    secret: 'mydogsnameisarden',
+    resave: false,
+    saveUninitialized: false
+}));
 exports.router.use(passport.initialize());
 exports.router.use(passport.session());
 exports.router.get('/', (req, res) => {
@@ -58,7 +62,7 @@ exports.router.get('/users/me', (req, res) => {
 });
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
-    return models_1.User.find({ username: req.body.username })
+    models_1.User.find({ username: req.body.username })
         .count()
         .exec()
         .then(count => {
@@ -68,7 +72,7 @@ exports.router.post('/users', (req, res) => {
         return models_1.User.hashPassword(req.body.password);
     })
         .then(hash => {
-        models_1.User.create({
+        return models_1.User.create({
             username: req.body.username,
             password: hash,
             name: {

@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../models'
 
 import * as passport from 'passport';
-const LocalStrategy = require('passport-local').Strategy;
+import {Strategy as LocalStrategy} from 'passport-local';
 
 passport.use(new LocalStrategy((username: string, password: string, done) => {
     let user;
@@ -40,7 +40,11 @@ passport.deserializeUser((id, done) => {
 })
 
 //MIDDLEWARE
-router.use(session({ secret: 'mydogsnameisarden' }));
+router.use(session({ 
+    secret: 'mydogsnameisarden',
+    resave: false,
+    saveUninitialized: false
+ }));
 router.use(passport.initialize());
 router.use(passport.session());
 
@@ -68,7 +72,7 @@ router.get('/users/me', (req, res) => {
 
 //POST to create a new user
 router.post('/users', (req, res) => {
-    return User.find({ username: req.body.username })
+    User.find({ username: req.body.username })
         .count()
         .exec()
         .then(count => {
@@ -78,7 +82,7 @@ router.post('/users', (req, res) => {
             return User.hashPassword(req.body.password)
         })
         .then(hash => {
-            User.create({
+            return User.create({
                 username: req.body.username,
                 password: hash,
                 name: {
