@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 //use global promise instead of mongoose's
-mongoose.promise = global.Promise;
+(<any>mongoose).promise = global.Promise;
 import * as bcrypt from 'bcrypt';
 
 const userSchema = mongoose.Schema({
