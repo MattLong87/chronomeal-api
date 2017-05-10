@@ -8,7 +8,7 @@ import { DATABASE_URL, PORT } from './config';
 import * as mongoose from 'mongoose';
 
 //use global promise instead of mongoose's
-(<any>mongoose).promise = global.Promise;
+(<any>mongoose).Promise = global.Promise;
 
 app.use(morgan('common'));
 app.use(bodyParser.json());

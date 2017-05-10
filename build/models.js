@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose = require("mongoose");
 //use global promise instead of mongoose's
-mongoose.promise = global.Promise;
+mongoose.Promise = global.Promise;
 const bcrypt = require("bcrypt");
 const userSchema = mongoose.Schema({
     username: { type: String, required: true },

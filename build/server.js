@@ -8,7 +8,7 @@ exports.app = express();
 const config_1 = require("./config");
 const mongoose = require("mongoose");
 //use global promise instead of mongoose's
-mongoose.promise = global.Promise;
+mongoose.Promise = global.Promise;
 exports.app.use(morgan('common'));
 exports.app.use(bodyParser.json());
 exports.app.use('/api', apiRouter_1.router);
