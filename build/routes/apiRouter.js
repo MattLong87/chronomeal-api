@@ -49,16 +49,9 @@ exports.router.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "login successful" });
 });
 //GET a user's information
-exports.router.get('/users/me', (req, res) => {
-    models_1.User.findOne()
-        .exec()
-        .then(user => {
-        res.json(user);
-    })
-        .catch(err => {
-        console.log(err);
-        res.status(500).json({ message: 'Internal Server Error' });
-    });
+exports.router.get('/users/me', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+    //user is attached to request object by passport.deserializeUser
+    res.send(req.user);
 });
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
@@ -96,9 +89,9 @@ exports.router.post('/users', (req, res) => {
     });
 });
 //POST to add a meal
-exports.router.post('/users/me/add-meal', (req, res) => {
+exports.router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "time", "food", "notes", "pain"];
+    const requiredFields = ["time", "food", "notes", "pain"];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if (!req.body[field]) {
@@ -111,26 +104,23 @@ exports.router.post('/users/me/add-meal', (req, res) => {
         notes: req.body.notes,
         pain: req.body.pain
     };
-    models_1.User.findOneAndUpdate({ username: req.body.username }, { $push: { meals: newMeal } }, { new: true })
+    models_1.User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
         .exec()
         .then((user) => {
         res.status(201).json(user);
     });
 });
 //DELETE a specific meal by ID
-exports.router.delete('/users/me/meals', (req, res) => {
+exports.router.delete('/users/me/meals', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "mealId"];
+    const requiredFields = ["mealId"];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if (!req.body[field]) {
             return res.json({ message: `Missing field: ${field}` });
         }
     }
-    models_1.User.update({ username: req.body.username }, { $pull: { meals: { _id: req.body.mealId } } })
+    models_1.User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()
         .then(() => res.status(204).end());
-});
-exports.router.get('/secrets', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
-    res.json({ message: 'secrets are here' });
 });

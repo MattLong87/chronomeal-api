@@ -57,17 +57,9 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 });
 
 //GET a user's information
-router.get('/users/me', (req, res) => {
-    User.findOne()
-        .exec()
-        .then(user => {
-            res.json(user)
-        })
-        .catch(
-        err => {
-            console.log(err);
-            res.status(500).json({ message: 'Internal Server Error' });
-        })
+router.get('/users/me', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+    //user is attached to request object by passport.deserializeUser
+    res.send(req.user);
 })
 
 //POST to create a new user
@@ -109,9 +101,9 @@ router.post('/users', (req, res) => {
 })
 
 //POST to add a meal
-router.post('/users/me/add-meal', (req, res) => {
+router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "time", "food", "notes", "pain"];
+    const requiredFields = ["time", "food", "notes", "pain"];
     for (let i=0; i<requiredFields.length; i++){
         const field = requiredFields[i];
          if(!req.body[field]){
@@ -124,7 +116,7 @@ router.post('/users/me/add-meal', (req, res) => {
         notes: req.body.notes,
         pain: req.body.pain
     };
-    User.findOneAndUpdate({ username: req.body.username }, { $push: { meals: newMeal } }, { new: true })
+    User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
         .exec()
         .then((user) => {
             res.status(201).json(user);
@@ -132,20 +124,16 @@ router.post('/users/me/add-meal', (req, res) => {
 })
 
 //DELETE a specific meal by ID
-router.delete('/users/me/meals', (req, res) => {
+router.delete('/users/me/meals', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "mealId"];
+    const requiredFields = ["mealId"];
     for (let i=0; i<requiredFields.length; i++){
         const field = requiredFields[i];
          if(!req.body[field]){
              return res.json({message: `Missing field: ${field}`});
          }
     }
-    User.update({ username: req.body.username }, { $pull: { meals: { _id: req.body.mealId } } })
+    User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()
         .then(() => res.status(204).end())
-})
-
-router.get('/secrets', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
-    res.json({ message: 'secrets are here' });
 })

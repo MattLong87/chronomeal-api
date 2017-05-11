@@ -28,7 +28,6 @@ Required body fields:
 ### Add a meal to a user
 ***POST /api/users/me/add-meal***  
 Required body fields:
-- username (string)
 - time (string)
 - food (string)
 - notes (string, even if empty)
@@ -37,5 +36,4 @@ Required body fields:
 ### Delete a meal
 ***DELETE /api/users/me/meals***  
 Required body fields:
-- username (string)
 - mealId (string, the _id field in the chosen meal)
