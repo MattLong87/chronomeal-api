@@ -15,7 +15,6 @@ function seedUsers(){
     for (let i=1; i<=10; i++){
         fakeUsers.push(generateFakeUser());
     }
-    console.log(fakeUsers);
     return User.insertMany(fakeUsers);
 }
 
@@ -68,6 +67,7 @@ describe('Foodtracker API', function () {
             return chai.request(app)
                 .get('/api')
                 .then(function (res) {
+                    console.log(User.findOne())
                     res.should.have.status(200);
                 })
         })
