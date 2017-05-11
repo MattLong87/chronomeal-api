@@ -13,26 +13,32 @@ const { User } = require('../build/models');
 function seedUsers() {
     const fakeUsers = [];
     for (let i = 1; i <= 10; i++) {
-        User.create(generateFakeUser());
+        const username = faker.internet.userName;
+        const password = faker.internet.password;
+        fakeUsers.push({username, password})
+        User.hashPassword(password)
+        .then(function(hash){
+            User.create(generateFakeUser(username, hash));
+        })
     }
 }
 
-function generateFakeUser() {
+function generateFakeUser(username, hash) {
     const numMeals = Math.floor(Math.random() * 6);
     const meals = [];
     for (let i = 1; i <= numMeals; i++) {
         meals.push(generateMeal);
     }
-    return {
-        username: faker.internet.userName,
-        password: faker.internet.password,
-        name: {
-            firstName: faker.name.firstName,
-            lastName: faker.name.lastName
-        },
-        meals: meals
+        return {
+            username: username,
+            password: hash,
+            name: {
+                firstName: faker.name.firstName,
+                lastName: faker.name.lastName
+            },
+            meals: meals
+        }
     }
-}
 
 function generateMeal() {
     return {
