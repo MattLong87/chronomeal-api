@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 const userSchema = mongoose.Schema({
     username: {type: String, required: true},
     password: {type: String, required: true},
+    email: {type: String, required: true},
     name: {
         firstName: {type: String, required: true},
         lastName: {type: String, required: true}
@@ -31,6 +32,7 @@ userSchema.methods.validatePassword = function(password: string){
 userSchema.methods.apiRepr = function(){
     return {
         username: this.username,
+        email: this.email,
         name: this.name,
         meals: this.meals
     }

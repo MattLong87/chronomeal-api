@@ -22,6 +22,7 @@ Required body fields:
 Required body fields: 
 - username (string)
 - password (string)
+- email (string)
 - firstName (string)
 - lastName (string)
 

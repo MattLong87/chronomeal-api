@@ -56,7 +56,7 @@ exports.router.get('/users/me', require('connect-ensure-login').ensureLoggedIn()
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "password", "firstName", "lastName"];
+    const requiredFields = ["username", "password", "email", "firstName", "lastName"];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if (!req.body[field]) {
@@ -76,6 +76,7 @@ exports.router.post('/users', (req, res) => {
         return models_1.User.create({
             username: req.body.username,
             password: hash,
+            email: req.body.email,
             name: {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
