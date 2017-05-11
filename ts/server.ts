@@ -10,7 +10,9 @@ import * as mongoose from 'mongoose';
 //use global promise instead of mongoose's
 mongoose.promise = global.Promise;
 
+
 app.use(cors());
+app.options('*', cors())
 app.use(morgan('common'));
 app.use(bodyParser.json());
 
