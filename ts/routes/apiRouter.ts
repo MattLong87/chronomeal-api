@@ -35,7 +35,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
     User.findById(id, (err, user) => {
-        done(err, user);
+        done(err, user.apiRepr());
     })
 })
 
@@ -119,7 +119,7 @@ router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn
     User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
         .exec()
         .then((user) => {
-            res.status(201).json(user);
+            res.status(201).json(user.apiRepr());
         })
 })
 

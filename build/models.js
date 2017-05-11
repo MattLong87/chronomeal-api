@@ -26,4 +26,11 @@ userSchema.statics.hashPassword = function (password) {
 userSchema.methods.validatePassword = function (password) {
     return bcrypt.compare(password, this.password);
 };
+userSchema.methods.apiRepr = function () {
+    return {
+        username: this.username,
+        name: this.name,
+        meals: this.meals
+    };
+};
 exports.User = mongoose.model('User', userSchema);

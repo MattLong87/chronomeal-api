@@ -28,4 +28,12 @@ userSchema.methods.validatePassword = function(password: string){
     return bcrypt.compare(password, this.password);
 }
 
+userSchema.methods.apiRepr = function(){
+    return {
+        username: this.username,
+        name: this.name,
+        meals: this.meals
+    }
+}
+
 export const User = mongoose.model('User', userSchema);

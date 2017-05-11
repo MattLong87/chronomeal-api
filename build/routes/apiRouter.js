@@ -31,7 +31,7 @@ passport.serializeUser((user, done) => {
 });
 passport.deserializeUser((id, done) => {
     models_1.User.findById(id, (err, user) => {
-        done(err, user);
+        done(err, user.apiRepr());
     });
 });
 //MIDDLEWARE
@@ -107,7 +107,7 @@ exports.router.post('/users/me/add-meal', require('connect-ensure-login').ensure
     models_1.User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
         .exec()
         .then((user) => {
-        res.status(201).json(user);
+        res.status(201).json(user.apiRepr());
     });
 });
 //DELETE a specific meal by ID
