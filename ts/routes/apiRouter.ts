@@ -5,34 +5,34 @@ import * as session from 'express-session';
 import {User} from '../models'
 
 import {passport} from 'passport';
-const LocalStrategy = require('passport-local').Strategy;
+// const LocalStrategy = require('passport-local').Strategy;
 
-passport.use(new LocalStrategy((username: string, password: string, done) => {
-    User.findOne({username: username}, (err, user) => {
-        if (err) {return done(err);}
-        if (!user) {
-            return done(null, false, {message: 'Incorrect username'});
-        }
-        if (!user.validPassword(password)) {
-            return done(null, false, {message: 'Incorrect password'});
-        }
-        return done(null, user);
-    })
-}));
+// passport.use(new LocalStrategy((username: string, password: string, done) => {
+//     User.findOne({username: username}, (err, user) => {
+//         if (err) {return done(err);}
+//         if (!user) {
+//             return done(null, false, {message: 'Incorrect username'});
+//         }
+//         if (!user.validPassword(password)) {
+//             return done(null, false, {message: 'Incorrect password'});
+//         }
+//         return done(null, user);
+//     })
+// }));
 
 //MIDDLEWARE
-router.use(session({secret: 'mydogsnameisarden'}));
-router.use(passport.initialize());
-router.use(passport.session());
+// router.use(session({secret: 'mydogsnameisarden'}));
+// router.use(passport.initialize());
+// router.use(passport.session());
 
 router.get('/', (req, res) => {
     res.send("foodtracker API");
 })
 
-router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({message: "login successful"});
-    }
-);
+// router.post('/login', passport.authenticate('local'), (req, res) => {
+//     res.json({message: "login successful"});
+//     }
+// );
 
 //GET a user's information
 router.get('/users/me', (req, res) =>{
