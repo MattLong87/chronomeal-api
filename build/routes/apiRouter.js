@@ -76,6 +76,7 @@ exports.router.post('/users', (req, res) => {
         return models_1.User.create({
             username: req.body.username,
             password: hash,
+            created: Date.now(),
             email: req.body.email,
             name: {
                 firstName: req.body.firstName,
@@ -83,7 +84,7 @@ exports.router.post('/users', (req, res) => {
             }
         });
     })
-        .then(user => res.status(201).json({ user }))
+        .then(user => res.status(201).json(user.apiRepr()))
         .catch(err => {
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });

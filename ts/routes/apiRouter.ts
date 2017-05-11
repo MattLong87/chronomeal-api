@@ -85,6 +85,7 @@ router.post('/users', (req, res) => {
             return User.create({
                 username: req.body.username,
                 password: hash,
+                created: Date.now(),
                 email: req.body.email,
                 name: {
                     firstName: req.body.firstName,
@@ -93,7 +94,7 @@ router.post('/users', (req, res) => {
             })
         })
         .then(
-        user => res.status(201).json({ user })
+        user => res.status(201).json(user.apiRepr())
         )
         .catch(err => {
             console.error(err);
