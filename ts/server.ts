@@ -11,7 +11,6 @@ import * as mongoose from 'mongoose';
 mongoose.promise = global.Promise;
 
 
-app.use(cors());
 app.options('*', cors())
 app.use(morgan('common'));
 app.use(bodyParser.json());

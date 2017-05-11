@@ -10,7 +10,6 @@ const config_1 = require("./config");
 const mongoose = require("mongoose");
 //use global promise instead of mongoose's
 mongoose.promise = global.Promise;
-exports.app.use(cors());
 exports.app.options('*', cors());
 exports.app.use(morgan('common'));
 exports.app.use(bodyParser.json());
