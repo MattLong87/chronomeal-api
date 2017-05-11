@@ -11,6 +11,7 @@ const mongoose = require("mongoose");
 //use global promise instead of mongoose's
 mongoose.promise = global.Promise;
 exports.app.options('*', cors());
+exports.app.use(cors());
 exports.app.use(morgan('common'));
 exports.app.use(bodyParser.json());
 exports.app.use('/api', apiRouter_1.router);

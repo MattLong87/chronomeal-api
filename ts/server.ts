@@ -12,6 +12,7 @@ mongoose.promise = global.Promise;
 
 
 app.options('*', cors())
+app.use(cors());
 app.use(morgan('common'));
 app.use(bodyParser.json());
 
