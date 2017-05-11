@@ -8,20 +8,19 @@ const should = chai.should();
 chai.use(chaiHttp);
 const faker = require('faker');
 
-const {User} = require('../build/models');
+const { User } = require('../build/models');
 
-function seedUsers(){
+function seedUsers() {
     const fakeUsers = [];
-    for (let i=1; i<=10; i++){
-        fakeUsers.push(generateFakeUser());
+    for (let i = 1; i <= 10; i++) {
+        User.create(generateFakeUser());
     }
-    return User.insertMany(fakeUsers);
 }
 
-function generateFakeUser(){
+function generateFakeUser() {
     const numMeals = Math.floor(Math.random() * 6);
     const meals = [];
-    for (let i=1; i<=numMeals; i++){
+    for (let i = 1; i <= numMeals; i++) {
         meals.push(generateMeal);
     }
     return {
@@ -35,7 +34,7 @@ function generateFakeUser(){
     }
 }
 
-function generateMeal(){
+function generateMeal() {
     return {
         time: faker.date.recent,
         food: faker.commerce.productName,
@@ -44,32 +43,33 @@ function generateMeal(){
     }
 }
 
-function tearDownDb(){
+function tearDownDb() {
     return mongoose.connection.dropDatabase();
 }
 
 describe('Foodtracker API', function () {
-    before(function () {
-        return runServer(TEST_DATABASE_URL);
-    });
-    beforeEach(function(){
-        return seedUsers();
-    })
-    afterEach(function(){
-        return tearDownDb();
-    })
-    after(function () {
-        return closeServer();
-    });
+    describe('Routes when user is not logged in', function () {
+        before(function () {
+            return runServer(TEST_DATABASE_URL);
+        });
+        beforeEach(function () {
+            return seedUsers();
+        })
+        afterEach(function () {
+            return tearDownDb();
+        })
+        after(function () {
+            return closeServer();
+        });
 
-    describe('GET endpoint', function () {
-        it('should return user\'s information on GET', function () {
-            return chai.request(app)
-                .get('/api')
-                .then(function (res) {
-                    console.log(User.findOne())
-                    res.should.have.status(200);
-                })
+        describe('GET endpoint', function () {
+            it('should return user\'s information on GET', function () {
+                return chai.request(app)
+                    .get('/api')
+                    .then(function (res) {
+                        res.should.have.status(200);
+                    })
+            })
         })
     })
 })
