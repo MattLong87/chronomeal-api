@@ -9,6 +9,7 @@ const userSchema = mongoose.Schema({
     password: { type: String, required: true },
     email: { type: String, required: true },
     created: { type: Number, required: true },
+    token: { type: String },
     name: {
         firstName: { type: String, required: true },
         lastName: { type: String, required: true }
@@ -22,18 +23,35 @@ const userSchema = mongoose.Schema({
         }
     ]
 });
-userSchema.statics.hashPassword = function (password) {
-    return bcrypt.hash(password, 10);
+userSchema.statics.hashPassword = function (password, cb) {
+    return bcrypt.hash(password, 10, cb);
 };
 userSchema.methods.validatePassword = function (password) {
     return bcrypt.compare(password, this.password);
 };
+userSchema.statics.generateToken = function (cb) {
+    require('crypto').randomBytes(26, function (err, buffer) {
+        var token = buffer.toString('hex');
+        cb(token);
+    });
+};
+userSchema.pre('save', function (next) {
+    if (this.isNew) {
+        return require('crypto').randomBytes(26, (err, buffer) => {
+            var token = buffer.toString('hex');
+            this.token = token;
+            next();
+        });
+    }
+    next();
+});
 userSchema.methods.apiRepr = function () {
     return {
         username: this.username,
         email: this.email,
         name: this.name,
-        meals: this.meals
+        meals: this.meals,
+        token: this.token
     };
 };
 exports.User = mongoose.model('User', userSchema);

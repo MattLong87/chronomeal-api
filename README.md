@@ -6,6 +6,10 @@
 3. tsc
 4. npm start (or npm run dev)
 
+## Authorization flow
+1. When user is created or logs in with username and password, token is generated and returned
+2. Future requests supply token in header: ```"Authorization: Bearer 123456789"```
+
 ## Endpoints
 
 ### Get all data for one user

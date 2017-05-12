@@ -6,6 +6,7 @@ const session = require("express-session");
 const models_1 = require("../models");
 const passport = require("passport");
 const passport_local_1 = require("passport-local");
+const passport_http_bearer_1 = require("passport-http-bearer");
 passport.use(new passport_local_1.Strategy((username, password, done) => {
     let user;
     models_1.User.findOne({ username: username })
@@ -24,6 +25,17 @@ passport.use(new passport_local_1.Strategy((username, password, done) => {
         else {
             return done(null, user);
         }
+    });
+}));
+passport.use(new passport_http_bearer_1.Strategy(function (token, done) {
+    models_1.User.findOne({ token: token }, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false);
+        }
+        return done(null, user, { scope: 'all' });
     });
 }));
 passport.serializeUser((user, done) => {
@@ -49,7 +61,7 @@ exports.router.post('/login', passport.authenticate('local'), (req, res) => {
     res.json({ message: "login successful" });
 });
 //GET a user's information
-exports.router.get('/users/me', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+exports.router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
     //user is attached to request object by passport.deserializeUser
     res.send(req.user);
 });

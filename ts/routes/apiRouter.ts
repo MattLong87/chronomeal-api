@@ -2,11 +2,12 @@ import * as express from 'express';
 export const router = express.Router();
 import * as session from 'express-session';
 import * as bcrypt from 'bcrypt';
-
 import { User } from '../models'
 
 import * as passport from 'passport';
-import {Strategy as LocalStrategy} from 'passport-local';
+import { Strategy as LocalStrategy } from 'passport-local';
+import { Strategy as BearerStrategy } from 'passport-http-bearer';
+import ensureLoggedIn from '../ensureLoggedIn';
 
 passport.use(new LocalStrategy((username: string, password: string, done) => {
     let user;
@@ -29,6 +30,16 @@ passport.use(new LocalStrategy((username: string, password: string, done) => {
         })
 }));
 
+passport.use(new BearerStrategy(
+  function(token, done) {
+    User.findOne({ token: token }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      return done(null, user, { scope: 'all' });
+    });
+  }
+));
+
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
@@ -40,11 +51,11 @@ passport.deserializeUser((id, done) => {
 })
 
 //MIDDLEWARE
-router.use(session({ 
+router.use(session({
     secret: 'mydogsnameisarden',
     resave: false,
     saveUninitialized: false
- }));
+}));
 router.use(passport.initialize());
 router.use(passport.session());
 
@@ -57,7 +68,7 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
 });
 
 //GET a user's information
-router.get('/users/me', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+router.get('/users/me', passport.authenticate('bearer', {session: false}), (req, res) => {
     //user is attached to request object by passport.deserializeUser
     res.send(req.user);
 })
@@ -66,11 +77,11 @@ router.get('/users/me', require('connect-ensure-login').ensureLoggedIn(), (req, 
 router.post('/users', (req, res) => {
     //verify required fields are present
     const requiredFields = ["username", "password", "email", "firstName", "lastName"];
-    for (let i=0; i<requiredFields.length; i++){
+    for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
-         if(!req.body[field]){
-             return res.json({message: `Missing field: ${field}`});
-         }
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
     }
     User.find({ username: req.body.username })
         .count()
@@ -106,11 +117,11 @@ router.post('/users', (req, res) => {
 router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
     const requiredFields = ["time", "food", "notes", "pain"];
-    for (let i=0; i<requiredFields.length; i++){
+    for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
-         if(!req.body[field]){
-             return res.json({message: `Missing field: ${field}`});
-         }
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
     }
     let newMeal: object = {
         time: req.body.time,
@@ -129,11 +140,11 @@ router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn
 router.delete('/users/me/meals', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
     //verify required fields are present
     const requiredFields = ["mealId"];
-    for (let i=0; i<requiredFields.length; i++){
+    for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
-         if(!req.body[field]){
-             return res.json({message: `Missing field: ${field}`});
-         }
+        if (!req.body[field]) {
+            return res.json({ message: `Missing field: ${field}` });
+        }
     }
     User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()

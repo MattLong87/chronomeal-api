@@ -4,7 +4,6 @@ import * as bodyParser from 'body-parser';
 import { router as apiRouter } from './routes/apiRouter';
 export const app = express();
 import { DATABASE_URL, PORT } from './config';
-
 import * as mongoose from 'mongoose';
 
 //use global promise instead of mongoose's

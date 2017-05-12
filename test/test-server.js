@@ -10,16 +10,20 @@ const faker = require('faker');
 
 const { User } = require('../build/models');
 
+//global array to store generated usernames and passwords
+let fakeUsers;
+
 function seedUsers() {
-    const fakeUsers = [];
-    for (let i = 1; i <= 10; i++) {
-        const username = faker.internet.userName;
-        const password = faker.internet.password;
-        fakeUsers.push({username, password})
-        User.hashPassword(password)
-        .then(function(hash){
-            User.create(generateFakeUser(username, hash));
-        })
+    fakeUsers = [];
+    for (let i = 1; i <= 1; i++) {
+        const username = faker.internet.userName();
+        const password = faker.internet.password();
+        fakeUsers.push({ username, password })
+        return User.hashPassword(password)
+            .then(function (hash) {
+                 User.create(generateFakeUser(username, hash))
+                .then(user => console.log(user));
+            })
     }
 }
 
@@ -29,22 +33,24 @@ function generateFakeUser(username, hash) {
     for (let i = 1; i <= numMeals; i++) {
         meals.push(generateMeal);
     }
-        return {
-            username: username,
-            password: hash,
-            name: {
-                firstName: faker.name.firstName,
-                lastName: faker.name.lastName
-            },
-            meals: meals
-        }
+    return {
+        username: username,
+        password: hash,
+        name: {
+            firstName: faker.name.firstName(),
+            lastName: faker.name.lastName()
+        },
+        meals: meals,
+        created: 1111111,
+        email: faker.internet.email()
     }
+}
 
 function generateMeal() {
     return {
-        time: faker.date.recent,
-        food: faker.commerce.productName,
-        notes: faker.lorem.sentence,
+        time: faker.date.recent(),
+        food: faker.commerce.productName(),
+        notes: faker.lorem.sentence(),
         pain: Math.floor(Math.random() * 11)
     }
 }
@@ -54,26 +60,52 @@ function tearDownDb() {
 }
 
 describe('Foodtracker API', function () {
+    before(function () {
+        return runServer(TEST_DATABASE_URL);
+    });
+    beforeEach(function () {
+        return seedUsers();
+    })
+    afterEach(function () {
+        return tearDownDb();
+    })
+    after(function () {
+        return closeServer();
+    });
     describe('Routes when user is not logged in', function () {
-        before(function () {
-            return runServer(TEST_DATABASE_URL);
-        });
-        beforeEach(function () {
-            return seedUsers();
-        })
-        afterEach(function () {
-            return tearDownDb();
-        })
-        after(function () {
-            return closeServer();
-        });
-
-        describe('GET endpoint', function () {
-            it('should return user\'s information on GET', function () {
+        describe('GET user information endpoint', function () {
+            it('should not return information', function () {
                 return chai.request(app)
-                    .get('/api')
-                    .then(function (res) {
+                    .get('/api/users/me')
+                    .catch(function (res) {
+                        res.should.have.status(401);
+                    })
+            })
+        })
+        describe('POST /login endpoint', function(){
+            it('should reject login when incorrect credentials supplied', function(){
+                const invalidUser = {
+                    username: 'doesnotexist',
+                    password: 'doesnotexist'
+                }
+                return chai.request(app)
+                    .post('/api/login')
+                    .send(invalidUser)
+                    .catch(function(res){
+                        res.should.have.status(401);
+                    })
+            })
+            it('should log the user in when supplied with correct credentials', function(){
+                console.log(JSON.stringify(fakeUsers[0]));
+                User.findOne({username: fakeUsers[0].username})
+                .then(user => console.log("user exists", user));
+                return chai.request(app)
+                    .post('/api/login')
+                    .send(fakeUsers[0])
+                    .then(function(res){
                         res.should.have.status(200);
+                        //res.should.be(json);
+                        //res.body.message.should.be('login successful');
                     })
             })
         })
