@@ -22,7 +22,7 @@ function seedUsers() {
         return User.hashPassword(password)
             .then(function (hash) {
                  User.create(generateFakeUser(username, hash))
-                .then(user => console.log(user));
+                //.then(user => console.log(user));
             })
     }
 }
@@ -96,16 +96,18 @@ describe('Foodtracker API', function () {
                     })
             })
             it('should log the user in when supplied with correct credentials', function(){
-                console.log(JSON.stringify(fakeUsers[0]));
-                User.findOne({username: fakeUsers[0].username})
-                .then(user => console.log("user exists", user));
+                // console.log(JSON.stringify(fakeUsers[0]));
+                // User.findOne({username: fakeUsers[0].username})
+                // .then(user => console.log("user exists", user));
                 return chai.request(app)
                     .post('/api/login')
                     .send(fakeUsers[0])
                     .then(function(res){
                         res.should.have.status(200);
-                        //res.should.be(json);
-                        //res.body.message.should.be('login successful');
+                        res.should.be.json;
+                        res.body.should.be.a('object');
+                        res.body.username.should.equal(fakeUsers[0].username);
+                        res.body.token.should.be.a('string');
                     })
             })
         })
