@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 exports.router = express.Router();
-const session = require("express-session");
 const models_1 = require("../models");
 const passport = require("passport");
 const passport_local_1 = require("passport-local");
@@ -23,7 +22,10 @@ passport.use(new passport_local_1.Strategy((username, password, done) => {
             return done(null, false, { message: 'Incorrect password' });
         }
         else {
-            return done(null, user);
+            user.token = models_1.User.generateToken();
+            user.save((err, updatedUser) => {
+                return done(null, updatedUser);
+            });
         }
     });
 }));
@@ -47,18 +49,12 @@ passport.deserializeUser((id, done) => {
     });
 });
 //MIDDLEWARE
-exports.router.use(session({
-    secret: 'mydogsnameisarden',
-    resave: false,
-    saveUninitialized: false
-}));
 exports.router.use(passport.initialize());
-exports.router.use(passport.session());
 exports.router.get('/', (req, res) => {
     res.send("foodtracker API");
 });
 exports.router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({ message: "login successful" });
+    res.json(req.user);
 });
 //GET a user's information
 exports.router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
@@ -96,14 +92,14 @@ exports.router.post('/users', (req, res) => {
             }
         });
     })
-        .then(user => res.status(201).json(user.apiRepr()))
+        .then(user => res.status(201).json(user))
         .catch(err => {
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });
     });
 });
 //POST to add a meal
-exports.router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+exports.router.post('/users/me/add-meal', passport.authenticate('bearer', { session: false }), (req, res) => {
     //verify required fields are present
     const requiredFields = ["time", "food", "notes", "pain"];
     for (let i = 0; i < requiredFields.length; i++) {
@@ -125,7 +121,7 @@ exports.router.post('/users/me/add-meal', require('connect-ensure-login').ensure
     });
 });
 //DELETE a specific meal by ID
-exports.router.delete('/users/me/meals', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+exports.router.delete('/users/me/meals', passport.authenticate('bearer', { session: false }), (req, res) => {
     //verify required fields are present
     const requiredFields = ["mealId"];
     for (let i = 0; i < requiredFields.length; i++) {

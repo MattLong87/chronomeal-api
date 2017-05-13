@@ -1,13 +1,11 @@
 import * as express from 'express';
 export const router = express.Router();
-import * as session from 'express-session';
 import * as bcrypt from 'bcrypt';
 import { User } from '../models'
 
 import * as passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
-import ensureLoggedIn from '../ensureLoggedIn';
 
 passport.use(new LocalStrategy((username: string, password: string, done) => {
     let user;
@@ -25,19 +23,22 @@ passport.use(new LocalStrategy((username: string, password: string, done) => {
                 return done(null, false, { message: 'Incorrect password' });
             }
             else {
-                return done(null, user);
+                user.token = User.generateToken();
+                user.save((err, updatedUser) => {
+                    return done(null, updatedUser);
+                })
             }
         })
 }));
 
 passport.use(new BearerStrategy(
-  function(token, done) {
-    User.findOne({ token: token }, function (err, user) {
-      if (err) { return done(err); }
-      if (!user) { return done(null, false); }
-      return done(null, user, { scope: 'all' });
-    });
-  }
+    function (token, done) {
+        User.findOne({ token: token }, function (err, user) {
+            if (err) { return done(err); }
+            if (!user) { return done(null, false); }
+            return done(null, user, { scope: 'all' });
+        });
+    }
 ));
 
 passport.serializeUser((user, done) => {
@@ -51,24 +52,18 @@ passport.deserializeUser((id, done) => {
 })
 
 //MIDDLEWARE
-router.use(session({
-    secret: 'mydogsnameisarden',
-    resave: false,
-    saveUninitialized: false
-}));
 router.use(passport.initialize());
-router.use(passport.session());
 
 router.get('/', (req, res) => {
     res.send("foodtracker API");
 });
 
 router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json({ message: "login successful" });
+    res.json(req.user);
 });
 
 //GET a user's information
-router.get('/users/me', passport.authenticate('bearer', {session: false}), (req, res) => {
+router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
     //user is attached to request object by passport.deserializeUser
     res.send(req.user);
 })
@@ -105,7 +100,7 @@ router.post('/users', (req, res) => {
             })
         })
         .then(
-        user => res.status(201).json(user.apiRepr())
+        user => res.status(201).json(user)
         )
         .catch(err => {
             console.error(err);
@@ -114,7 +109,7 @@ router.post('/users', (req, res) => {
 })
 
 //POST to add a meal
-router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+router.post('/users/me/add-meal', passport.authenticate('bearer', { session: false }), (req, res) => {
     //verify required fields are present
     const requiredFields = ["time", "food", "notes", "pain"];
     for (let i = 0; i < requiredFields.length; i++) {
@@ -137,7 +132,7 @@ router.post('/users/me/add-meal', require('connect-ensure-login').ensureLoggedIn
 })
 
 //DELETE a specific meal by ID
-router.delete('/users/me/meals', require('connect-ensure-login').ensureLoggedIn(), (req, res) => {
+router.delete('/users/me/meals', passport.authenticate('bearer', { session: false }), (req, res) => {
     //verify required fields are present
     const requiredFields = ["mealId"];
     for (let i = 0; i < requiredFields.length; i++) {

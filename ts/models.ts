@@ -31,12 +31,10 @@ userSchema.methods.validatePassword = function (password: string) {
     return bcrypt.compare(password, this.password);
 }
 
-userSchema.statics.generateToken = function (cb) {
-    require('crypto').randomBytes(26, function (err, buffer) {
-        var token = buffer.toString('hex');
-        cb(token);
-    });
-}
+userSchema.statics.generateToken = function () {
+    const buffer = require('crypto').randomBytes(26);
+    return buffer.toString('hex');
+};
 
 userSchema.pre('save', function (next) {
     if (this.isNew) {
