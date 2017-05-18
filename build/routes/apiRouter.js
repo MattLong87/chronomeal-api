@@ -113,7 +113,7 @@ exports.router.post('/users/me/add-meal', passport.authenticate('bearer', { sess
         notes: req.body.notes,
         pain: req.body.pain
     };
-    models_1.User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
+    models_1.User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: { $each: [newMeal], $position: 0 } } }, { new: true })
         .exec()
         .then((user) => {
         res.status(201).json(user.apiRepr());

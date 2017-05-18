@@ -26,6 +26,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
+    "chai-shallow-deep-equal": "^1.4.6",
     "faker": "^4.1.0",
     "mocha": "^3.3.0"
   }

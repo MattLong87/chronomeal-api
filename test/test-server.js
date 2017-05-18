@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const should = chai.should();
 chai.use(chaiHttp);
+chai.use(require('chai-shallow-deep-equal'))
 const faker = require('faker');
 
 const { User } = require('../build/models');
@@ -21,7 +22,7 @@ function seedUsers() {
         fakeUsers.push({ email, password })
         return User.hashPassword(password)
             .then(function (hash) {
-                 User.create(generateFakeUser(email, hash))
+                User.create(generateFakeUser(email, hash))
                 //.then(user => console.log(user));
             })
     }
@@ -81,8 +82,8 @@ describe('Foodtracker API', function () {
                     })
             })
         })
-        describe('POST /login endpoint', function(){
-            it('should reject login when incorrect credentials supplied', function(){
+        describe('POST /login endpoint', function () {
+            it('should reject login when incorrect credentials supplied', function () {
                 const invalidUser = {
                     email: 'doesnotexist',
                     password: 'doesnotexist'
@@ -90,15 +91,15 @@ describe('Foodtracker API', function () {
                 return chai.request(app)
                     .post('/api/login')
                     .send(invalidUser)
-                    .catch(function(res){
+                    .catch(function (res) {
                         res.should.have.status(401);
                     })
             })
-            it('should log the user in when supplied with correct credentials', function(){
+            it('should log the user in when supplied with correct credentials', function () {
                 return chai.request(app)
                     .post('/api/login')
                     .send(fakeUsers[0])
-                    .then(function(res){
+                    .then(function (res) {
                         res.should.have.status(200);
                         res.should.be.json;
                         res.body.should.be.a('object');
@@ -108,15 +109,55 @@ describe('Foodtracker API', function () {
             })
         })
     })
-    describe('routes following login', function(){
-        describe('GET /users/me endpoint', function(){
-
+    describe('routes following login', function () {
+        describe('GET /users/me endpoint', function () {
+            it('Should return the correct user\'s information', function () {
+                let res;
+                return chai.request(app)
+                    .post('/api/login')
+                    .send(fakeUsers[0])
+                    .then(function (res) {
+                        const token = res.body.token;
+                        return chai.request(app)
+                            .get('/api/users/me')
+                            .set('Authorization', `Bearer ${token}`)
+                            .then(function (_res) {
+                                res = _res;
+                                res.should.have.status(200);
+                                res.should.be.json;
+                                res.body.email.should.equal(fakeUsers[0].email);
+                            })
+                    })
+            })
         })
-        describe('POST /users/me/add-meal endpoint', function(){
+        describe('POST /users/me/add-meal endpoint', function () {
+            it('should add a meal to the user', function () {
+                let fakeMeal = {
+                    time: 'fakeTime',
+                    food: 'fakeFood',
+                    notes: 'fakeNotes',
+                    pain: 1
+                }
+                let res;
+                return chai.request(app)
+                    .post('/api/login')
+                    .send(fakeUsers[0])
+                    .then(function (loggedInRes) {
+                        const token = loggedInRes.body.token;
+                        return chai.request(app)
+                            .post(`/api/users/me/add-meal?access_token=${token}`)
+                            .send(fakeMeal)
+                            .then(function (_res) {
+                                res = _res;
+                                res.should.have.status(201);
+                                res.body.meals[0].should.shallowDeepEqual(fakeMeal);
+                            })
+                    })
 
+            })
         })
-        describe('DELETE /users/me/meals endpoint', function(){
-            
+        describe('DELETE /users/me/meals endpoint', function () {
+
         })
     })
 })

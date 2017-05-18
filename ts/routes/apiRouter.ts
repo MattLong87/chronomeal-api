@@ -123,7 +123,7 @@ passport.use(new LocalStrategy({ usernameField: 'email' }, (email: string, passw
             notes: req.body.notes,
             pain: req.body.pain
         };
-        User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
+        User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: {$each: [newMeal] , $position: 0} } }, { new: true })
             .exec()
             .then((user) => {
                 res.status(201).json(user.apiRepr());
