@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node build/server.js",
+    "test": "mocha",
     "dev": "nodemon build/server.js"
   },
   "author": "",
@@ -12,6 +13,7 @@
   "dependencies": {
     "@types/node": "^7.0.18",
     "bcrypt": "^1.0.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
     "cors": "^2.8.3",
     "express": "^4.15.2",
