@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 //use global promise instead of mongoose's
 (<any>mongoose).Promise = global.Promise;
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 const userSchema = mongoose.Schema({
     email: { type: String, required: true },
