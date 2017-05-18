@@ -95,9 +95,6 @@ describe('Foodtracker API', function () {
                     })
             })
             it('should log the user in when supplied with correct credentials', function(){
-                // console.log(JSON.stringify(fakeUsers[0]));
-                // User.findOne({username: fakeUsers[0].username})
-                // .then(user => console.log("user exists", user));
                 return chai.request(app)
                     .post('/api/login')
                     .send(fakeUsers[0])
@@ -109,6 +106,17 @@ describe('Foodtracker API', function () {
                         res.body.token.should.be.a('string');
                     })
             })
+        })
+    })
+    describe('routes following login', function(){
+        describe('GET /users/me endpoint', function(){
+
+        })
+        describe('POST /users/me/add-meal endpoint', function(){
+
+        })
+        describe('DELETE /users/me/meals endpoint', function(){
+            
         })
     })
 })
