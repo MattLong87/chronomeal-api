@@ -6,7 +6,7 @@ const models_1 = require("../models");
 const passport = require("passport");
 const passport_local_1 = require("passport-local");
 const passport_http_bearer_1 = require("passport-http-bearer");
-passport.use(new passport_local_1.Strategy((email, password, done) => {
+passport.use(new passport_local_1.Strategy({ usernameField: 'email' }, (email, password, done) => {
     let user;
     models_1.User.findOne({ email: email })
         .exec()

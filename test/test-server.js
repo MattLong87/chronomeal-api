@@ -16,25 +16,24 @@ let fakeUsers;
 function seedUsers() {
     fakeUsers = [];
     for (let i = 1; i <= 1; i++) {
-        const username = faker.internet.userName();
+        const email = faker.internet.email();
         const password = faker.internet.password();
-        fakeUsers.push({ username, password })
+        fakeUsers.push({ email, password })
         return User.hashPassword(password)
             .then(function (hash) {
-                 User.create(generateFakeUser(username, hash))
+                 User.create(generateFakeUser(email, hash))
                 //.then(user => console.log(user));
             })
     }
 }
 
-function generateFakeUser(username, hash) {
+function generateFakeUser(email, hash) {
     const numMeals = Math.floor(Math.random() * 6);
     const meals = [];
     for (let i = 1; i <= numMeals; i++) {
         meals.push(generateMeal);
     }
     return {
-        username: username,
         password: hash,
         name: {
             firstName: faker.name.firstName(),
@@ -42,7 +41,7 @@ function generateFakeUser(username, hash) {
         },
         meals: meals,
         created: 1111111,
-        email: faker.internet.email()
+        email: email
     }
 }
 
@@ -85,7 +84,7 @@ describe('Foodtracker API', function () {
         describe('POST /login endpoint', function(){
             it('should reject login when incorrect credentials supplied', function(){
                 const invalidUser = {
-                    username: 'doesnotexist',
+                    email: 'doesnotexist',
                     password: 'doesnotexist'
                 }
                 return chai.request(app)
@@ -106,7 +105,7 @@ describe('Foodtracker API', function () {
                         res.should.have.status(200);
                         res.should.be.json;
                         res.body.should.be.a('object');
-                        res.body.username.should.equal(fakeUsers[0].username);
+                        res.body.email.should.equal(fakeUsers[0].email);
                         res.body.token.should.be.a('string');
                     })
             })

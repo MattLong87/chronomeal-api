@@ -7,7 +7,7 @@ import * as passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 
-passport.use(new LocalStrategy((email: string, password: string, done) => {
+passport.use(new LocalStrategy({usernameField: 'email'}, (email: string, password: string, done) => {
     let user;
     User.findOne({ email: email })
         .exec()

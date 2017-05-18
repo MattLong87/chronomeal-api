@@ -5,9 +5,8 @@ const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 const bcrypt = require("bcrypt");
 const userSchema = mongoose.Schema({
-    username: { type: String, required: true },
-    password: { type: String, required: true },
     email: { type: String, required: true },
+    password: { type: String, required: true },
     created: { type: Number, required: true },
     token: { type: String },
     name: {
