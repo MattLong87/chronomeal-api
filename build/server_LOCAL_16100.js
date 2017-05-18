@@ -9,7 +9,7 @@ exports.app = express();
 const config_1 = require("./config");
 const mongoose = require("mongoose");
 //use global promise instead of mongoose's
-mongoose.Promise = global.Promise;
+mongoose.promise = global.Promise;
 exports.app.options('*', cors());
 exports.app.use(cors());
 exports.app.use(morgan('common'));

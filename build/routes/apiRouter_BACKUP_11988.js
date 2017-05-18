@@ -4,58 +4,26 @@ const express = require("express");
 exports.router = express.Router();
 const models_1 = require("../models");
 const passport = require("passport");
-const passport_local_1 = require("passport-local");
-const passport_http_bearer_1 = require("passport-http-bearer");
-passport.use(new passport_local_1.Strategy({ usernameField: 'email' }, (email, password, done) => {
-    let user;
-    models_1.User.findOne({ email: email })
-        .exec()
-        .then(_user => {
-        user = _user;
-        if (!user) {
-            return done(null, false, { message: 'Email not found' });
-        }
-        return user.validatePassword(password);
-    })
-        .then(isValid => {
-        if (!isValid) {
-            return done(null, false, { message: 'Incorrect password' });
-        }
-        else {
-            user.token = models_1.User.generateToken();
-            user.save((err, updatedUser) => {
-                return done(null, updatedUser);
-            });
-        }
-    });
-    passport.use(new passport_http_bearer_1.Strategy(function (token, done) {
-        models_1.User.findOne({ token: token }, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false);
-            }
-            return done(null, user, { scope: 'all' });
-        });
-    }));
-    passport.serializeUser((user, done) => {
-        done(null, user.id);
-    });
-    passport.deserializeUser((id, done) => {
-        models_1.User.findById(id, (err, user) => {
-            done(err, user.apiRepr());
-        });
-    });
-    //MIDDLEWARE
-    // router.use(passport.initialize());
-    exports.router.get('/', (req, res) => {
-        res.send("foodtracker API");
-    });
-    // router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json(req.user);
-}));
-//GET a user's information
+// const LocalStrategy = require('passport-local').Strategy;
+// passport.use(new LocalStrategy((username: string, password: string, done) => {
+//     User.findOne({username: username}, (err, user) => {
+//         if (err) {return done(err);}
+//         if (!user) {
+//             return done(null, false, {message: 'Incorrect username'});
+//         }
+//         if (!user.validPassword(password)) {
+//             return done(null, false, {message: 'Incorrect password'});
+//         }
+//         return done(null, user);
+//     })
+// }));
+//MIDDLEWARE
+// router.use(session({secret: 'mydogsnameisarden'}));
+// router.use(passport.initialize());
+// router.use(passport.session());
+exports.router.get('/', (req, res) => {
+    res.send("foodtracker API");
+});
 exports.router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
     //user is attached to request object by passport.deserializeUser
     res.send(req.user);

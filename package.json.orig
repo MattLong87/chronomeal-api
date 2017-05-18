@@ -13,7 +13,11 @@
     "@types/node": "^7.0.18",
     "bcrypt": "^1.0.2",
     "body-parser": "^1.17.1",
+<<<<<<< HEAD
     "cors": "^2.8.3",
+=======
+    "connect-ensure-login": "^0.1.1",
+>>>>>>> ffb97f45b9ad084348484d0345b42c93e91b6b96
     "express": "^4.15.2",
     "express-session": "^1.15.2",
     "mongoose": "^4.9.7",

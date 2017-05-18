@@ -5,10 +5,10 @@ import * as cors from 'cors';
 import { router as apiRouter } from './routes/apiRouter';
 export const app = express();
 import { DATABASE_URL, PORT } from './config';
-
 import * as mongoose from 'mongoose';
+
 //use global promise instead of mongoose's
-mongoose.promise = global.Promise;
+(<any>mongoose).Promise = global.Promise;
 
 
 app.options('*', cors())

@@ -28,33 +28,34 @@ passport.use(new passport_local_1.Strategy({ usernameField: 'email' }, (email, p
             });
         }
     });
-    passport.use(new passport_http_bearer_1.Strategy(function (token, done) {
-        models_1.User.findOne({ token: token }, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false);
-            }
-            return done(null, user, { scope: 'all' });
-        });
-    }));
-    passport.serializeUser((user, done) => {
-        done(null, user.id);
-    });
-    passport.deserializeUser((id, done) => {
-        models_1.User.findById(id, (err, user) => {
-            done(err, user.apiRepr());
-        });
-    });
-    //MIDDLEWARE
-    // router.use(passport.initialize());
-    exports.router.get('/', (req, res) => {
-        res.send("foodtracker API");
-    });
-    // router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json(req.user);
 }));
+passport.use(new passport_http_bearer_1.Strategy(function (token, done) {
+    models_1.User.findOne({ token: token }, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false);
+        }
+        return done(null, user, { scope: 'all' });
+    });
+}));
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+passport.deserializeUser((id, done) => {
+    models_1.User.findById(id, (err, user) => {
+        done(err, user.apiRepr());
+    });
+});
+//MIDDLEWARE
+exports.router.use(passport.initialize());
+exports.router.get('/', (req, res) => {
+    res.send("foodtracker API");
+});
+exports.router.post('/login', passport.authenticate('local'), (req, res) => {
+    res.json(req.user);
+});
 //GET a user's information
 exports.router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
     //user is attached to request object by passport.deserializeUser
