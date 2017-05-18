@@ -6,14 +6,14 @@ const models_1 = require("../models");
 const passport = require("passport");
 const passport_local_1 = require("passport-local");
 const passport_http_bearer_1 = require("passport-http-bearer");
-passport.use(new passport_local_1.Strategy((username, password, done) => {
+passport.use(new passport_local_1.Strategy((email, password, done) => {
     let user;
-    models_1.User.findOne({ username: username })
+    models_1.User.findOne({ email: email })
         .exec()
         .then(_user => {
         user = _user;
         if (!user) {
-            return done(null, false, { message: 'Incorrect username' });
+            return done(null, false, { message: 'Email not found' });
         }
         return user.validatePassword(password);
     })
@@ -64,28 +64,27 @@ exports.router.get('/users/me', passport.authenticate('bearer', { session: false
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
     //verify required fields are present
-    const requiredFields = ["username", "password", "email", "firstName", "lastName"];
+    const requiredFields = ["password", "email", "firstName", "lastName"];
     for (let i = 0; i < requiredFields.length; i++) {
         const field = requiredFields[i];
         if (!req.body[field]) {
             return res.json({ message: `Missing field: ${field}` });
         }
     }
-    models_1.User.find({ username: req.body.username })
+    models_1.User.find({ email: req.body.email })
         .count()
         .exec()
         .then(count => {
         if (count > 0) {
-            return res.status(422).json({ message: 'Username already taken' });
+            return res.status(422).json({ message: 'Email already registered' });
         }
         return models_1.User.hashPassword(req.body.password);
     })
         .then(hash => {
         return models_1.User.create({
-            username: req.body.username,
+            email: req.body.email,
             password: hash,
             created: Date.now(),
-            email: req.body.email,
             name: {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
