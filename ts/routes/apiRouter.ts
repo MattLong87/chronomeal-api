@@ -7,7 +7,7 @@ import * as passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as BearerStrategy } from 'passport-http-bearer';
 
-passport.use(new LocalStrategy({usernameField: 'email'}, (email: string, password: string, done) => {
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email: string, password: string, done) => {
     let user;
     User.findOne({ email: email })
         .exec()
@@ -29,117 +29,118 @@ passport.use(new LocalStrategy({usernameField: 'email'}, (email: string, passwor
                 })
             }
         })
+}));
 
-passport.use(new BearerStrategy(
-    function (token, done) {
-        User.findOne({ token: token }, function (err, user) {
-            if (err) { return done(err); }
-            if (!user) { return done(null, false); }
-            return done(null, user, { scope: 'all' });
-        });
-    }
-));
+    passport.use(new BearerStrategy(
+        function (token, done) {
+            User.findOne({ token: token }, function (err, user) {
+                if (err) { return done(err); }
+                if (!user) { return done(null, false); }
+                return done(null, user, { scope: 'all' });
+            });
+        }
+    ));
 
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
+    passport.serializeUser((user, done) => {
+        done(null, user.id);
+    });
 
-passport.deserializeUser((id, done) => {
-    User.findById(id, (err, user) => {
-        done(err, user.apiRepr());
+    passport.deserializeUser((id, done) => {
+        User.findById(id, (err, user) => {
+            done(err, user.apiRepr());
+        })
     })
-})
 
-//MIDDLEWARE
-// router.use(passport.initialize());
+    //MIDDLEWARE
+    router.use(passport.initialize());
 
-router.get('/', (req, res) => {
-    res.send("foodtracker API");
-});
+    router.get('/', (req, res) => {
+        res.send("foodtracker API");
+    });
 
-// router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json(req.user);
-});
+    router.post('/login', passport.authenticate('local'), (req, res) => {
+        res.json(req.user);
+    });
 
-//GET a user's information
-router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
-    //user is attached to request object by passport.deserializeUser
-    res.send(req.user);
-})
+    //GET a user's information
+    router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
+        //user is attached to request object by passport.deserializeUser
+        res.send(req.user);
+    })
 
-//POST to create a new user
-router.post('/users', (req, res) => {
-    //verify required fields are present
-    const requiredFields = ["password", "email", "firstName", "lastName"];
-    for (let i = 0; i < requiredFields.length; i++) {
-        const field = requiredFields[i];
-        if (!req.body[field]) {
-            return res.json({ message: `Missing field: ${field}` });
-        }
-    }
-    User.find({ email: req.body.email })
-        .count()
-        .exec()
-        .then(count => {
-            if (count > 0) {
-                return res.status(422).json({ message: 'Email already registered' });
+    //POST to create a new user
+    router.post('/users', (req, res) => {
+        //verify required fields are present
+        const requiredFields = ["password", "email", "firstName", "lastName"];
+        for (let i = 0; i < requiredFields.length; i++) {
+            const field = requiredFields[i];
+            if (!req.body[field]) {
+                return res.json({ message: `Missing field: ${field}` });
             }
-            return User.hashPassword(req.body.password)
-        })
-        .then(hash => {
-            return User.create({
-                email: req.body.email,
-                password: hash,
-                created: Date.now(),
-                name: {
-                    firstName: req.body.firstName,
-                    lastName: req.body.lastName
+        }
+        User.find({ email: req.body.email })
+            .count()
+            .exec()
+            .then(count => {
+                if (count > 0) {
+                    return res.status(422).json({ message: 'Email already registered' });
                 }
+                return User.hashPassword(req.body.password)
             })
-        })
-        .then(
-        user => res.status(201).json(user)
-        )
-        .catch(err => {
-            console.error(err);
-            res.status(500).json({ message: 'Internal Server Error' });
-        })
-})
+            .then(hash => {
+                return User.create({
+                    email: req.body.email,
+                    password: hash,
+                    created: Date.now(),
+                    name: {
+                        firstName: req.body.firstName,
+                        lastName: req.body.lastName
+                    }
+                })
+            })
+            .then(
+            user => res.status(201).json(user)
+            )
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({ message: 'Internal Server Error' });
+            })
+    })
 
-//POST to add a meal
-router.post('/users/me/add-meal', passport.authenticate('bearer', { session: false }), (req, res) => {
-    //verify required fields are present
-    const requiredFields = ["time", "food", "notes", "pain"];
-    for (let i = 0; i < requiredFields.length; i++) {
-        const field = requiredFields[i];
-        if (!req.body[field]) {
-            return res.json({ message: `Missing field: ${field}` });
+    //POST to add a meal
+    router.post('/users/me/add-meal', passport.authenticate('bearer', { session: false }), (req, res) => {
+        //verify required fields are present
+        const requiredFields = ["time", "food", "notes", "pain"];
+        for (let i = 0; i < requiredFields.length; i++) {
+            const field = requiredFields[i];
+            if (!req.body[field]) {
+                return res.json({ message: `Missing field: ${field}` });
+            }
         }
-    }
-    let newMeal: object = {
-        time: req.body.time,
-        food: req.body.food,
-        notes: req.body.notes,
-        pain: req.body.pain
-    };
-    User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
-        .exec()
-        .then((user) => {
-            res.status(201).json(user.apiRepr());
-        })
-})
+        let newMeal: object = {
+            time: req.body.time,
+            food: req.body.food,
+            notes: req.body.notes,
+            pain: req.body.pain
+        };
+        User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: newMeal } }, { new: true })
+            .exec()
+            .then((user) => {
+                res.status(201).json(user.apiRepr());
+            })
+    })
 
-//DELETE a specific meal by ID
-router.delete('/users/me/meals', passport.authenticate('bearer', { session: false }), (req, res) => {
-    //verify required fields are present
-    const requiredFields = ["mealId"];
-    for (let i = 0; i < requiredFields.length; i++) {
-        const field = requiredFields[i];
-        if (!req.body[field]) {
-            return res.json({ message: `Missing field: ${field}` });
+    //DELETE a specific meal by ID
+    router.delete('/users/me/meals', passport.authenticate('bearer', { session: false }), (req, res) => {
+        //verify required fields are present
+        const requiredFields = ["mealId"];
+        for (let i = 0; i < requiredFields.length; i++) {
+            const field = requiredFields[i];
+            if (!req.body[field]) {
+                return res.json({ message: `Missing field: ${field}` });
+            }
         }
-    }
-    User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
-        .exec()
-        .then(() => res.status(204).end())
-})
+        User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
+            .exec()
+            .then(() => res.status(204).end())
+    })
