@@ -153,11 +153,27 @@ describe('Foodtracker API', function () {
                                 res.body.meals[0].should.shallowDeepEqual(fakeMeal);
                             })
                     })
-
             })
         })
         describe('DELETE /users/me/meals endpoint', function () {
-
+            it('should delete a meal when provided with an id', function (done) {
+                let res;
+                console.log(fakeUsers[0].email);
+                User.find({email: fakeUsers[0].email})
+                .exec()
+                .then(function(user){
+                    console.log(user);
+                    done()
+                })
+                // return chai.request(app)
+                //     .post('/api/login')
+                //     .send(fakeUsers[0])
+                //     .then(function (loggedInRes) {
+                //         const token = loggedInRes.body.token;
+                //         return chai.request(app)
+                            
+                //     })
+            })
         })
     })
 })
