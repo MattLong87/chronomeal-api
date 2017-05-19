@@ -22,7 +22,8 @@ function seedUsers() {
         fakeUsers.push({ email, password })
         return User.hashPassword(password)
             .then(function (hash) {
-                User.create(generateFakeUser(email, hash))
+                return User.create(generateFakeUser(email, hash))
+                    .catch((err) => console.log(err))
                 //.then(user => console.log(user));
             })
     }
@@ -32,7 +33,7 @@ function generateFakeUser(email, hash) {
     const numMeals = Math.floor(Math.random() * 6);
     const meals = [];
     for (let i = 1; i <= numMeals; i++) {
-        meals.push(generateMeal);
+        meals.push(generateMeal());
     }
     return {
         password: hash,
@@ -157,22 +158,24 @@ describe('Foodtracker API', function () {
         })
         describe('DELETE /users/me/meals endpoint', function () {
             it('should delete a meal when provided with an id', function (done) {
-                let res;
-                console.log(fakeUsers[0].email);
-                User.find({email: fakeUsers[0].email})
-                .exec()
-                .then(function(user){
-                    console.log(user);
-                    done()
-                })
-                // return chai.request(app)
-                //     .post('/api/login')
-                //     .send(fakeUsers[0])
-                //     .then(function (loggedInRes) {
-                //         const token = loggedInRes.body.token;
-                //         return chai.request(app)
-                            
-                //     })
+                User.findOne({ email: fakeUsers[0].email })
+                    .exec()
+                    .then(function (user) {
+                        const id = user.meals[0]['_id'];
+                        return chai.request(app)
+                            .post('/api/login')
+                            .send(fakeUsers[0])
+                            .then(function (loggedInRes) {
+                                const token = loggedInRes.body.token;
+                                return chai.request(app)
+                                    .delete(`/api/users/me/meals?access_token=${token}`)
+                                    .send({ mealId: id })
+                                    .then(function (res) {
+                                        res.should.have.status(204);
+                                        done();
+                                    })
+                            })
+                    })
             })
         })
     })
