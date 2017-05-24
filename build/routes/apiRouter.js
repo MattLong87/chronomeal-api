@@ -54,12 +54,20 @@ exports.router.get('/', (req, res) => {
     res.send("foodtracker API");
 });
 exports.router.post('/login', passport.authenticate('local'), (req, res) => {
-    res.json(req.user);
+    models_1.User.findById(req.user.id)
+        .exec()
+        .then(user => {
+        res.send(user.apiRepr());
+    });
 });
 //GET a user's information
 exports.router.get('/users/me', passport.authenticate('bearer', { session: false }), (req, res) => {
     //user is attached to request object by passport.deserializeUser
-    res.send(req.user);
+    models_1.User.findById(req.user.id)
+        .exec()
+        .then(user => {
+        res.send(user.apiRepr());
+    });
 });
 //POST to create a new user
 exports.router.post('/users', (req, res) => {
