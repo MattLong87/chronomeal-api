@@ -24,7 +24,6 @@ function seedUsers() {
             .then(function (hash) {
                 return User.create(generateFakeUser(email, hash))
                     .catch((err) => console.log(err))
-                //.then(user => console.log(user));
             })
     }
 }
@@ -161,7 +160,6 @@ describe('Foodtracker API', function () {
                 User.findOne({ email: fakeUsers[0].email })
                     .exec()
                     .then(function (user) {
-                        //console.log(user);
                         const id = user.meals[0]['_id'];
                         return chai.request(app)
                             .post('/api/login')
