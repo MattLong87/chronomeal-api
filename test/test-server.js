@@ -17,7 +17,7 @@ let fakeUsers;
 function seedUsers() {
     fakeUsers = [];
     for (let i = 1; i <= 1; i++) {
-        const email = faker.internet.email();
+        const email = faker.internet.email().toLowerCase();
         const password = faker.internet.password();
         fakeUsers.push({ email, password })
         return User.hashPassword(password)
@@ -161,7 +161,7 @@ describe('Foodtracker API', function () {
                 User.findOne({ email: fakeUsers[0].email })
                     .exec()
                     .then(function (user) {
-                        console.log(user);
+                        //console.log(user);
                         const id = user.meals[0]['_id'];
                         return chai.request(app)
                             .post('/api/login')
