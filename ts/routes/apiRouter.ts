@@ -9,7 +9,7 @@ import { Strategy as BearerStrategy } from 'passport-http-bearer';
 
 passport.use(new LocalStrategy({ usernameField: 'email' }, (email: string, password: string, done) => {
     let user;
-    User.findOne({ email: email })
+    User.findOne({ email: email.toLowerCase() })
         .exec()
         .then(_user => {
             user = _user;
@@ -97,7 +97,7 @@ router.post('/users', (req, res) => {
         })
         .then(hash => {
             return User.create({
-                email: req.body.email,
+                email: req.body.email.toLowerCase(),
                 password: hash,
                 created: Date.now(),
                 name: {

@@ -8,7 +8,7 @@ const passport_local_1 = require("passport-local");
 const passport_http_bearer_1 = require("passport-http-bearer");
 passport.use(new passport_local_1.Strategy({ usernameField: 'email' }, (email, password, done) => {
     let user;
-    models_1.User.findOne({ email: email })
+    models_1.User.findOne({ email: email.toLowerCase() })
         .exec()
         .then(_user => {
         user = _user;
@@ -90,7 +90,7 @@ exports.router.post('/users', (req, res) => {
     })
         .then(hash => {
         return models_1.User.create({
-            email: req.body.email,
+            email: req.body.email.toLowerCase(),
             password: hash,
             created: Date.now(),
             name: {
