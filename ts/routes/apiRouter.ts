@@ -107,7 +107,7 @@ router.post('/users', (req, res) => {
             })
         })
         .then(
-        user => res.status(201).json(user)
+        user => res.status(201).json(user.apiRepr())
         )
         .catch(err => {
             console.error(err);

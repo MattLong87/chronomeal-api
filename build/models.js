@@ -44,7 +44,6 @@ userSchema.pre('save', function (next) {
 });
 userSchema.methods.apiRepr = function () {
     return {
-        username: this.username,
         email: this.email,
         name: this.name,
         meals: this.meals,

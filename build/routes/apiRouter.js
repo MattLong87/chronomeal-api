@@ -99,7 +99,7 @@ exports.router.post('/users', (req, res) => {
             }
         });
     })
-        .then(user => res.status(201).json(user))
+        .then(user => res.status(201).json(user.apiRepr()))
         .catch(err => {
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });
