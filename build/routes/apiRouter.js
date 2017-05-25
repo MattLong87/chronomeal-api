@@ -121,7 +121,7 @@ exports.router.post('/users/me/add-meal', passport.authenticate('bearer', { sess
         notes: req.body.notes,
         pain: req.body.pain
     };
-    models_1.User.findOneAndUpdate({ username: req.user.username }, { $push: { meals: { $each: [newMeal], $position: 0 } } }, { new: true })
+    models_1.User.findOneAndUpdate({ email: req.user.email }, { $push: { meals: { $each: [newMeal], $position: 0 } } }, { new: true })
         .exec()
         .then((user) => {
         res.status(201).json(user.apiRepr());
@@ -137,7 +137,7 @@ exports.router.delete('/users/me/meals', passport.authenticate('bearer', { sessi
             return res.json({ message: `Missing field: ${field}` });
         }
     }
-    models_1.User.update({ username: req.user.username }, { $pull: { meals: { _id: req.body.mealId } } })
+    models_1.User.update({ email: req.user.email }, { $pull: { meals: { _id: req.body.mealId } } })
         .exec()
         .then(() => res.status(204).end());
 });
