@@ -1,10 +1,12 @@
-# FoodTracker API
+# Chronomeal API
+This is the back-end API for the Chronomeal app. Chronomeal allows people with chronic pain to record their meals and pain levels, so they or their doctor can look for trends over time.
 
-## Usage
-1. Clone or download
-2. npm install
-3. tsc
-4. npm start (or npm run dev)
+## Installation
+1. `git clone https://github.com/MattLong87/chronomeal-api`
+2. `cd chronomeal-api`
+3. `npm install`
+4. `tsc`
+5. `npm start` (or `npm run dev`)
 
 ## Authorization flow
 1. When user is created or logs in with username and password, token is generated and returned
