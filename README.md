@@ -1,5 +1,5 @@
 # Chronomeal API
-This is the back-end API for the [Chronomeal app](https://github.com/drayvock/foodtracker). Chronomeal allows people with chronic pain to record their meals and pain levels, so they or their doctor can look for trends over time.
+This is the back-end API for the [Chronomeal app](https://mattlong87.github.io/chronomeal-landing-page/). Chronomeal allows people with chronic pain to record their meals and pain levels, so they or their doctor can look for trends over time.
 
 ## Installation
 1. `git clone https://github.com/MattLong87/chronomeal-api`
